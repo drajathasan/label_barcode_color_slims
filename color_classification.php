@@ -4,7 +4,7 @@
  * @email [drajathasan20@gmail.com]
  * @create date 2020-08-08 16:24:59
  * @modify date 2020-08-08 16:24:59
- * @desc "Left Right template label barcode"
+ * @desc "Label barcode color picker"
  */
 
 // set index auth
@@ -33,9 +33,13 @@ $style = [
     'barcode-lr' => ['height' => 48, 'width' => 107, 'left' => ['margin' => '34px -29px 30px -20px'], 'right' => ['margin' => '34px -15px 30px -28px']]
 ];
 
-if (file_exists(SB.'files/left_right_barcode_style.json'))
+if (!file_exists(SB.'files/color_classification.json'))
 {
-    $style = json_decode(file_get_contents(SB.'files/left_right_barcode_style.json'), TRUE);
+    $color = [];
+    for ($i=0; $i < 10; $i++) { 
+        $color['K'.$i] = 0;
+    }
+    @file_put_contents(SB.'files/color_classification.json', json_encode($color));
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET')
@@ -58,57 +62,38 @@ include __DIR__.'/left_right_barcode_style.php';
 <!-- Left and Right -->
 <div id="noprint" style="float: left; height: 100vh; width: 250px">
     <form method="post" action="<?=MWB;?>bibliography/lbc/wizard_designer_lbc.php">
-        <input type="hidden" name="type" value="left_right_barcode"/>
+        <input type="hidden" name="type" value="color_classification"/>
         <section style="padding: 10px;">
-            <h1 style="text-transform: uppercase; font-size: 14pt; font-weight: 700;">Atur Ukuran Barcode</h1>
+            <h1 style="text-transform: uppercase; font-size: 14pt; font-weight: 700;">Atur Warna Perklasifikasi</h1>
             
             <!-- Polaa kode item -->
             <label class="block">Pola kode item</label>
-            <select class="w-full b-none block bg-white" onchange="changeSrcBarcode()">
-                <option value="0">Pilih</option>
+            <select class="w-full b-none block bg-white" name="class">
+                <option value="">Pilih</option>
                 <?php
-                    foreach ($itemPattern as $value) {
-                        echo '<option value="'.$value.'">'.$value.'</option>';
+                    // klasifikasi
+                    for ($i=0; $i < 10; $i++) { 
+                        echo '<option value="'.$i.'">'.$i.'XX</option>';
+                    }
+                    // other klasifikasi
+                    if (file_exists(SB.'files/other_classification.json'))
+                    {
+                        $other_class = json_decode(file_get_contents(SB.'files/other_classification.json'), TRUE);
+                        foreach ($other_class as $value) {
+                            echo '<option value="'.$value.'">'.$value.'XX</option>';
+                        }
                     }
                 ?>
             </select>
-            
-            <!-- Tinggi kotak -->
-            <label class="block">Tinggi kotak</label>
-            <input type="number" name="content[height]" title="Satuan dalam px. (Rekomendasi >= 120 < 200)" class="w-full b-none block bg-white" onkeyup="changeBoxHeight()" placeholder="Secara default akan otomatis (dalam PX)" value="<?=$style['content']['height']?>"/>
-
-            <!-- Lebar kotak -->
-            <label class="block">Lebar kotak</label>
-            <input type="number" name="col[width]" title="Satuan dalam px. (Rekomendasi 328)" class="w-full b-none block bg-white" onkeyup="changeBoxWidth()" placeholder="Secara default akan otomatis (dalam PX)" value="<?=$style['col']['width']?>"/>
-
-            <!-- Lebar konten -->
-            <label class="block">Lebar konten</label>
-            <input type="number" name="content-hm[width]" title="Satuan dalam px. (Rekomendasi 160)" class="w-full b-none block bg-white" onkeyup="changeContentWidth()" placeholder="Secara default akan otomatis (dalam PX)" value="<?=$style['content-hm']['width']?>"/>
-            
-            <!-- Tinggi barcode -->
-            <label class="block">Tinggi Barcode</label>
-            <input type="number" name="barcode-lr[height]" title="Satuan dalam px. (Rekomendasi >= 55 <= 65)"  class="w-full b-none block bg-white" onkeyup="changeBarcodeHeight()" placeholder="Secara default akan otomatis (Satuan dalam PX)" value="<?=$style['barcode-lr']['height']?>"/>
-            
-            <!-- Tinggi barcode -->
-            <label class="block">Lebar Barcode</label>
-            <input type="number" name="barcode-lr[width]" title="Satuan dalam px. (Rekomendasi >= 55 <= 65)"  class="w-full b-none block 
-            bg-white" onkeyup="changeBarcodeWidth()" placeholder="Secara default akan otomatis (Satuan dalam PX)" value="<?=$style['barcode-lr']['width']?>"/>
-
-            <!-- Margin Barcode Kana -->
-            <label class="block">Margin Barcode Kanan</label>
-            <input type="text" name="barcode-lr[left][margin]" class="w-full b-none block bg-white" value="<?=$style['barcode-lr']['left']['margin']?>" onkeyup="changeMargin('right')"/>
-            <span class="w-full block" style="margin-top: 2px; font-weight: 200">Atas, Kanan, Bawah, Kiri</span>
-
-            <!-- Margin Barcode Kiri -->
-            <label class="block">Margin Barcode Kiri</label>
-            <input type="text" name="barcode-lr[right][margin]" class="w-full b-none block bg-white" value="<?=$style['barcode-lr']['right']['margin']?>" onkeyup="changeMargin('left')"/>
-            <span class="w-full block" style="margin-top: 2px; font-weight: 200">Atas, Kanan, Bawah, Kiri</span>
-
+            <label class="block">Klasifikasi Yang Lain</label>
+            <input type="text" name="other_class" class="w-full"/>
+            <label class="block">Warna</label>
+            <input type="text" id="picker" name="color" class="picker w-full" value="#ff6161">
+            <br/>
             <button style="padding: 10px; float: right;">Simpan</button>
         </section>
     </form>
 </div>
-<!-- Preview print area -->
 <div id="printarea" style="float: left;">
     <section id="left-right-barcode" style="display: block; ; width: 100%">
         <!-- 1st Row -->
@@ -148,3 +133,19 @@ include __DIR__.'/left_right_barcode_style.php';
         </div>
     </section>
 </div>
+<script>
+    $('.picker').minicolors({
+
+    // Fires when the value of the color picker changes
+    change: function(e){
+        $('.content-header').attr('style', 'background-color:'+e);
+    },
+
+    // Fires when the color picker is hidden.
+    hide: null,
+
+    // Fires when the color picker is shown. 
+    show: null
+
+    });
+</script>

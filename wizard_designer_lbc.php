@@ -1,4 +1,13 @@
 <?php
+
+/**
+ * @author Drajat Hasan
+ * @email [drajathasan20@gmail.com]
+ * @create date 2020-08-08 20:22:35
+ * @modify date 2020-08-08 20:22:35
+ * @desc [description]
+ */
+
 // set index auth
 define('INDEX_AUTH', '1');
 
@@ -9,6 +18,44 @@ require SB.'admin/default/session.inc.php';
 require SB.'admin/default/session_check.inc.php';
 
 $_SESSION['INDESIGN'] = true;
+
+if (isset($_POST) && count($_POST) > 0)
+{
+    $_SESSION['type'] = $_POST['type'];
+    unset($_POST['type']);
+    $style = json_encode($_POST);
+    // write file configuration
+    if ($_SESSION['type'] != 'color_classification')
+    {
+        @file_put_contents(SB.'files/'.$_SESSION['type'].'_style.json', $style);
+    }
+    else
+    {
+        $color = json_decode(file_get_contents(SB.'files/color_classification.json'), TRUE);
+
+        if (!empty($_POST['class']))
+        {
+            $color['K'.$_POST['class']] = $_POST['color'];
+        }
+
+        @file_put_contents(SB.'files/color_classification.json', json_encode($color));
+
+        if (isset($_POST['other_class']) && !empty($_POST['other_class']))
+        {
+            $other_class = [];
+            if (file_exists(SB.'files/other_classification.json'))
+            {
+                $other_class = json_decode(file_get_contents(SB.'files/other_classification.json'), TRUE);
+
+                $other_class['K'.$_POST['class']] = $_POST['color'];
+            }
+            else
+            {
+                @file_put_contents(SB.'files/other_classification.json', ['K'.$_POST['other_class'] => $_POST['color']]);
+            }
+        }
+    }
+}
 
 // include printed settings configuration file
 require SB.'admin'.DS.'admin_template'.DS.'printed_settings.inc.php';
@@ -32,9 +79,9 @@ if ($itemPattern_q->num_rows == 1)
 }
 
 $type = 'left_right_barcode.php';
-if (isset($_GET['type']))
+if (isset($_SESSION['type']))
 {
-    $type = $_GET['type'].'.php';
+    $type = $_SESSION['type'].'.php';
 }
 
 
@@ -45,6 +92,8 @@ if (isset($_GET['type']))
         <title>Label Barcode Warna</title>
         <script type="text/javascript" src="<?=JWB?>jquery.js"></script>
         <script type="text/javascript" src="<?=JWB?>updater.js"></script>
+        <script type="text/javascript" src="./minicolors/jquery.minicolors.js"></script>
+        <link rel="stylesheet" href="./minicolors/jquery.minicolors.css">
         <style>
             * {
                 font-family: Arial, Helvetica, sans-serif !important;
@@ -91,19 +140,20 @@ if (isset($_GET['type']))
                     width: 210mm;
                     height: 297mm;
                 } */
-                #noprint {
+                #noprint, .noprint {
                     display: none;
                 }
             }
         </style>
     </head>
     <body>
-        <div class="w-full" style="background: #b5b5b5">
+        <div class="w-full noprint" style="background: #b5b5b5">
             <h1 style="padding: 10px; display: inline-block">Label Barcode Color Wizard :</h1>
             <select id="temp" style="padding: 10px">
                 <option value="left_right_barcode">Template Kanan Kiri Label Barcode</option>
-                <option value="right_barcode">Template Kanan Kiri Label Barcode</option>
-                <option value="left_barcode">Template Kanan Kanan Label Barcode</option>
+                <option value="right_barcode">Template Kanan Label Barcode</option>
+                <option value="left_barcode">Template Kiri Label Barcode</option>
+                <option value="color_classification">Atur Warna PerKlasifikasi</option>
             </select>
         </div>
         <div class="loader d-none" ></div>

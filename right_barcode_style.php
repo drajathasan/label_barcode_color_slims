@@ -1,4 +1,3 @@
-<!-- Css left barcode -->
 <style>
 .row {
     display: block; width: 100%; margin-left: 20px; margin-top: 10px;
@@ -21,7 +20,7 @@
 }
 
 .content {
-    float: left;border-left: solid 2px black;height: <?=$style['content']['height']?>px;
+    float: left;border-right: solid 2px black;height: <?=$style['content']['height']?>px;
 }
 
 .content-header {
@@ -30,5 +29,13 @@
 
 .content-main {
     display: block; width: <?=$style['content-hm']['width']?>px; padding: 1px;font-size: 10pt;font-weight: bold; text-align: center;
+}
+
+.right-barcode {
+    transform: rotate(-90deg);width: <?=$style['barcode-lr']['width']?>px;height: <?=$style['barcode-lr']['height']?>px;margin: <?=$style['barcode-lr']['right']['margin']?>;
+}
+
+.right-title {
+    transform: rotate(-90deg); display: block; float:left; font-size: 10pt; margin-top: 10px;
 }
 </style>

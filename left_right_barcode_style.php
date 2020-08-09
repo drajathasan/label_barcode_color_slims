@@ -1,3 +1,4 @@
+<!-- CSS left right -->
 <style>
 .row {
     display: block; width: 100%; margin-left: 20px; margin-top: 10px;
@@ -12,7 +13,7 @@
 }
 
 .left-barcode {
-    transform: rotate(90deg);width: <?=$style['barocde-lr']['width']?>px;height: <?=$style['barocde-lr']['height']?>px;margin: <?=$style['barocde-lr']['left']['margin']?>;
+    transform: rotate(90deg);width: <?=$style['barcode-lr']['width']?>px;height: <?=$style['barocde-lr']['height']?>px;margin: <?=$style['barcode-lr']['left']['margin']?>;
 }
 
 .left-title {
@@ -32,7 +33,7 @@
 }
 
 .right-barcode {
-    transform: rotate(-90deg);width: <?=$style['barocde-lr']['width']?>px;height: <?=$style['barocde-lr']['height']?>px;margin: <?=$style['barocde-lr']['right']['margin']?>;
+    transform: rotate(-90deg);width: <?=$style['barcode-lr']['width']?>px;height: <?=$style['barcode-lr']['height']?>px;margin: <?=$style['barcode-lr']['right']['margin']?>;
 }
 
 .right-title {
