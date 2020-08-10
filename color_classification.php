@@ -16,14 +16,14 @@ if (!defined('INDEX_AUTH'))
 }
 
 // start the session
-require SB.'admin/default/session.inc.php';
-require SB.'admin/default/session_check.inc.php';
+require_once SB.'admin/default/session.inc.php';
+require_once SB.'admin/default/session_check.inc.php';
 
 // check indesign or not
 if (isset($_SESSION['INDESIGN']))
 {
     // Dummy data
-    $data = ['title' => 'Hai', 'call_number' => '005.13/3-22 Jan p', 'img' => 'SMP001.png'];
+    $data = ['title' => 'PostgreSQL : a compre', 'call_number' => '{number} Jan p', 'img' => 'SMP001.png'];
 }
 
 $style = [
@@ -33,6 +33,11 @@ $style = [
     'barcode-lr' => ['height' => 48, 'width' => 107, 'left' => ['margin' => '34px -29px 30px -20px'], 'right' => ['margin' => '34px -15px 30px -28px']]
 ];
 
+if (file_exists(SB.'files/left_right_barcode_style.json'))
+{
+    $style = json_decode(file_get_contents(SB.'files/left_right_barcode_style.json'), TRUE);
+}
+
 if (!file_exists(SB.'files/color_classification.json'))
 {
     $color = [];
@@ -41,6 +46,23 @@ if (!file_exists(SB.'files/color_classification.json'))
     }
     @file_put_contents(SB.'files/color_classification.json', json_encode($color));
 }
+
+// print setting
+if (!function_exists('loadPrintSettings'))
+{
+    // include printed settings configuration file
+    require SB.'admin'.DS.'admin_template'.DS.'printed_settings.inc.php';
+    
+    // check for custom template settings
+    $custom_settings = SB.'admin'.DS.$sysconf['admin_template']['dir'].DS.$sysconf['template']['theme'].DS.'printed_settings.inc.php';
+    
+    if (file_exists($custom_settings)) {
+        include_once $custom_settings;
+    }
+
+    loadPrintSettings($dbs, 'barcode');
+}
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -79,8 +101,9 @@ include __DIR__.'/left_right_barcode_style.php';
                     if (file_exists(SB.'files/other_classification.json'))
                     {
                         $other_class = json_decode(file_get_contents(SB.'files/other_classification.json'), TRUE);
-                        foreach ($other_class as $value) {
-                            echo '<option value="'.$value.'">'.$value.'XX</option>';
+                        var_dump($other_class);
+                        foreach ($other_class as $key => $value) {
+                            echo '<option value="'.str_replace('K', '', $key).'">'.str_replace('K', '', $key).' XX</option>';
                         }
                     }
                 ?>
@@ -88,64 +111,125 @@ include __DIR__.'/left_right_barcode_style.php';
             <label class="block">Klasifikasi Yang Lain</label>
             <input type="text" name="other_class" class="w-full"/>
             <label class="block">Warna</label>
-            <input type="text" id="picker" name="color" class="picker w-full" value="#ff6161">
+            <input type="text" id="picker" class="picker w-full" value="#ff6161">
             <br/>
+            <br/>
+            <button style="padding: 10px; float: right;" class="printsample">Cetak Sampel</button>&nbsp;
             <button style="padding: 10px; float: right;">Simpan</button>
         </section>
     </form>
 </div>
 <div id="printarea" style="float: left;">
     <section id="left-right-barcode" style="display: block; ; width: 100%">
-        <!-- 1st Row -->
-        <div class="row">
-            <!-- Sub row -->
-            <div class="sub-row">
-                <!-- 1st Col -->
-                <div class="col">
-                    <!-- Col barcode left -->
-                    <div style="float: left;">
-                        <span class="left-title"><?=$data['title'];?></span>
-                        <img class="left-barcode barcode" src="<?=SWB?>images/barcodes/<?=$data['img']?>"/>
-                    </div>
-                    <!-- Content -->
-                    <div class="content">
-                        <div class="content-header">
-                            <?=($sysconf['print']['barcode']['barcode_header_text']?$sysconf['print']['barcode']['barcode_header_text']:$sysconf['library_name'])?>
-                        </div>
-                        <div class="content-main">
-                            <?php
-                                $cn = explode(' ', $data['call_number']);
+        <?php
+        // Main class
+        $colorClass = json_decode(file_get_contents(SB.'files/color_classification.json'), TRUE);
+        $colorClass = array_chunk($colorClass, 3);
+        $idx = 0;
+        foreach ($colorClass as $ky => $value) {
+            ?>
+            <!-- <?=($ky+1)?> Row -->
+            <div class="row">
+                <!-- Sub row -->
+                <div class="sub-row">
+                    <?php
+                    foreach ($value as $ke => $val) {
+                        ?>
+                        <!-- <?=($ke+1)?> Col -->
+                        <div class="col">
+                            <!-- Col barcode left -->
+                            <div style="float: left;width: 70px;padding: 5px;">
+                                <span class="left-title"><?=$data['title'];?></span>
+                                <img class="left-barcode barcode" src="<?=SWB?>images/barcodes/<?=$data['img']?>"/>
+                            </div>
+                            <!-- Content -->
+                            <div class="content">
+                                <div class="content-header <?=$val?>" id="K<?=($ke+$idx)?>" style="background-color: <?php echo (preg_match('/^#[a-z0-9]\w+/i', $val))?$val:'#fff';?>">
+                                    <?=($sysconf['print']['barcode']['barcode_header_text']?$sysconf['print']['barcode']['barcode_header_text']:$sysconf['library_name'])?>
+                                </div>
+                                <div class="content-main">
+                                    <?php
+                                        $cn = explode(' ', $data['call_number']);
 
-                                foreach ($cn as $callNumber) {
-                                    echo '<br/>';
-                                    echo $callNumber;
-                                }
-                            ?>
+                                        foreach ($cn as $callNumber) {
+                                            echo '<br/>';
+                                            if (preg_match('/({)|(})/i', $callNumber))
+                                            {
+                                                echo str_replace('{number}', ($ke+$idx).'XX', $callNumber);
+                                            }
+                                            else
+                                            {
+                                                echo $callNumber;
+                                            }
+                                        }
+                                    ?>
+                                </div>
+                            </div>
+                            <!-- Col barcode left -->
+                            <div style="float: left;width: 70px;padding: 5px;">
+                                <span class="right-title"><?=$data['title'];?></span>
+                                <img class="right-barcode barcode" src="<?=SWB?>images/barcodes/<?=$data['img']?>"/>
+                            </div>
                         </div>
-                    </div>
-                    <!-- Col barcode left -->
-                    <div style="float: left;">
-                        <img class="right-barcode barcode" src="<?=SWB?>images/barcodes/<?=$data['img']?>"/>
-                        <span class="right-title">Hai</span>
-                    </div>
+                        <?php
+                    }
+                    $idx = $idx+3;
+                    ?>
                 </div>
             </div>
-        </div>
+            <?php
+        }
+
+        ?>
     </section>
 </div>
 <script>
+    // Javascript
     $('.picker').minicolors({
-
-    // Fires when the value of the color picker changes
-    change: function(e){
-        $('.content-header').attr('style', 'background-color:'+e);
-    },
-
-    // Fires when the color picker is hidden.
-    hide: null,
-
-    // Fires when the color picker is shown. 
-    show: null
-
+        // Fires when the value of the color picker changes
+        change: function(e){
+            // set class
+            let k = $('select[name="class"]').val();
+            if (k != "")
+            {
+                // set colour
+                $('#K'+k).attr('style', 'background-color:'+e);
+                // append input hidden
+                if ($('input[name="color[K'+k+']"]').length == 0)
+                {
+                    let ih = '<input type="hidden" name="color[K'+k+']" value="'+e+'"/>';
+                    $('form').append(ih);
+                }
+                else
+                {
+                    $('input[name="color[K'+k+']"]').val(e);
+                }
+            }
+            else
+            {
+                let ok = $('input[name="other_class"]').val();
+                // append input hidden
+                if ($('input[name="other_color[K'+ok+']"]').length == 0)
+                {
+                    let ih = '<input type="hidden" name="other_color[K'+ok+']" value="'+e+'"/>';
+                    $('form').append(ih);
+                }
+                else
+                {
+                    $('input[name="other_color[K'+ok+']"]').val(e);
+                }
+            }
+        },
     });
+
+    // Set empty
+    $('input[name="other_class"]').click(function(){
+        $('select[name="class"]').val("");
+    });
+
+    // set print preview
+    $('.printsample').click(function(e){
+        e.preventDefault();
+        window.print();
+    })
 </script>

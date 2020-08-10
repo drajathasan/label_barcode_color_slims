@@ -5,7 +5,7 @@
 }
 
 .sub-row {
-    display: block; width: 95%;
+    display: block; width: 100%;
 }
 
 .col {
@@ -13,11 +13,11 @@
 }
 
 .left-barcode {
-    transform: rotate(90deg);width: <?=$style['barcode-lr']['width']?>px;height: <?=$style['barocde-lr']['height']?>px;margin: <?=$style['barcode-lr']['left']['margin']?>;
+    transform: rotate(90deg);width: <?=$style['barcode-lr']['width']?>px;height: <?=$style['barcode-lr']['height']?>px;margin: <?=$style['barcode-lr']['left']['margin']?>;
 }
 
 .left-title {
-    transform: rotate(90deg); display: block; float:right; font-size: 10pt; margin-top: 10px;
+    display: block;font-size: 8pt
 }
 
 .content {
@@ -37,6 +37,6 @@
 }
 
 .right-title {
-    transform: rotate(-90deg); display: block; float:left; font-size: 10pt; margin-top: 10px;
+    display: block;font-size: 8pt
 }
 </style>

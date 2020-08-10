@@ -16,19 +16,19 @@ if (!defined('INDEX_AUTH'))
 }
 
 // start the session
-require SB.'admin/default/session.inc.php';
-require SB.'admin/default/session_check.inc.php';
+require_once SB.'admin/default/session.inc.php';
+require_once SB.'admin/default/session_check.inc.php';
 
 // check indesign or not
 if (isset($_SESSION['INDESIGN']))
 {
     // Dummy data
-    $data = ['title' => 'Hai', 'call_number' => '005.13/3-22 Jan p', 'img' => 'SMP001.png'];
+    $data = ['title' => 'PostgreSQL : a compre', 'call_number' => '005.13/3-22 Jan p', 'img' => 'SMP001.png'];
 }
 
 $style = [
-    'content' => ['height' => 117],
-    'col' => ['width' => 328],
+    'content' => ['height' => 151],
+    'col' => ['width' => 330],
     'content-hm' => ['width' => 246],
     'barcode-lr' => ['height' => 48, 'width' => 107, 'left' => ['margin' => '34px -29px 30px -20px'], 'right' => ['margin' => '34px -15px 30px -28px']]
 ];
@@ -36,6 +36,22 @@ $style = [
 if (file_exists(SB.'files/left_barcode_style.json'))
 {
     $style = json_decode(file_get_contents(SB.'files/left_barcode_style.json'), TRUE);
+}
+
+// print setting
+if (!function_exists('loadPrintSettings'))
+{
+    // include printed settings configuration file
+    require SB.'admin'.DS.'admin_template'.DS.'printed_settings.inc.php';
+    
+    // check for custom template settings
+    $custom_settings = SB.'admin'.DS.$sysconf['admin_template']['dir'].DS.$sysconf['template']['theme'].DS.'printed_settings.inc.php';
+    
+    if (file_exists($custom_settings)) {
+        include_once $custom_settings;
+    }
+
+    loadPrintSettings($dbs, 'barcode');
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET')
@@ -113,7 +129,7 @@ include __DIR__.'/left_barcode_style.php';
                 <!-- 1st Col -->
                 <div class="col">
                     <!-- Col barcode left -->
-                    <div style="float: left;">
+                    <div style="float: left;width: 70px;padding: 5px;">
                         <span class="left-title"><?=$data['title'];?></span>
                         <img src="<?=SWB?>images/barcodes/<?=$data['img']?>" class="left-barcode barcode"/>
                     </div>

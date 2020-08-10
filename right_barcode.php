@@ -16,27 +16,46 @@ if (!defined('INDEX_AUTH'))
 }
 
 // start the session
-require SB.'admin/default/session.inc.php';
-require SB.'admin/default/session_check.inc.php';
+require_once SB.'admin/default/session.inc.php';
+require_once SB.'admin/default/session_check.inc.php';
 
 // check indesign or not
 if (isset($_SESSION['INDESIGN']))
 {
     // Dummy data
-    $data = ['title' => 'Hai', 'call_number' => '005.13/3-22 Jan p', 'img' => 'SMP001.png'];
+    $data = ['title' => 'PostgreSQL : a compre', 'call_number' => '005.13/3-22 Jan p', 'img' => 'SMP001.png'];
 }
 
 $style = [
-    'content' => ['height' => 117],
+    'content' => ['height' => 150],
     'col' => ['width' => 335],
     'content-hm' => ['width' => 246],
-    'barcode-lr' => ['height' => 48, 'width' => 107, 'right' => ['margin' => '34px -15px 30px -27px']]
+    'barcode-lr' => ['height' => 48, 'width' => 107, 'right' => ['margin' => '34px -15px 30px -15px']]
 ];
 
 if (file_exists(SB.'files/right_barcode_style.json'))
 {
     $style = json_decode(file_get_contents(SB.'files/right_barcode_style.json'), TRUE);
 }
+
+// print setting
+if (!function_exists('loadPrintSettings'))
+{
+    // include printed settings configuration file
+    require SB.'admin'.DS.'admin_template'.DS.'printed_settings.inc.php';
+    
+    // check for custom template settings
+    $custom_settings = SB.'admin'.DS.$sysconf['admin_template']['dir'].DS.$sysconf['template']['theme'].DS.'printed_settings.inc.php';
+    
+    if (file_exists($custom_settings)) {
+        include_once $custom_settings;
+    }
+
+    loadPrintSettings($dbs, 'barcode');
+}
+
+// print setting
+loadPrintSettings($dbs, 'barcode');
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -127,7 +146,7 @@ include __DIR__.'/right_barcode_style.php';
                     </div>
                 </div>
                 <!-- Col barcode left -->
-                <div style="float: left;">
+                <div style="float: left;width: 70px;padding: 5px;">
                     <span class="right-title"><?=$data['title'];?></span>
                     <img src="<?=SWB?>images/barcodes/SMP001.png" class="right-barcode barcode"/>
                 </div>

@@ -19,7 +19,14 @@ $('#printarea').attr('style', 'float:left;width:'+w1+'px');
 $('#noprint').attr('style', 'height: 100vh; float:left;width:'+w2+'px');
 
 $('#temp').change(function(){
-    $('#view').simbioAJAX(baseurl+'admin/modules/bibliography/lbc/'+$(this).val()+'.php');
+    let view = $(this).val();
+
+    if (view == "")
+    {
+        view = 'main_menu';
+    }
+
+    $('#view').simbioAJAX(baseurl+'admin/modules/bibliography/lbc/'+view+'.php');
 });
 
 // Function area

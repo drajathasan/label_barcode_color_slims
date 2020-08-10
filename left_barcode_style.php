@@ -5,7 +5,7 @@
 }
 
 .sub-row {
-    display: block; width: 95%;
+    display: block; width: 100%;
 }
 
 .col {
@@ -17,7 +17,7 @@
 }
 
 .left-title {
-    transform: rotate(90deg); display: block; float:right; font-size: 10pt; margin-top: 10px;
+    display: block;font-size: 8pt
 }
 
 .content {

@@ -36,6 +36,6 @@
 }
 
 .right-title {
-    transform: rotate(-90deg); display: block; float:left; font-size: 10pt; margin-top: 10px;
+    display: block;font-size: 8pt
 }
 </style>

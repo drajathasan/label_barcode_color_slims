@@ -16,6 +16,8 @@ require '../../../../sysconfig.inc.php';
 // start the session
 require SB.'admin/default/session.inc.php';
 require SB.'admin/default/session_check.inc.php';
+// load function
+include SB.'admin'.DS.'modules'.DS.'bibliography'.DS.'lbc'.DS.'func.php';
 
 $_SESSION['INDESIGN'] = true;
 
@@ -33,9 +35,12 @@ if (isset($_POST) && count($_POST) > 0)
     {
         $color = json_decode(file_get_contents(SB.'files/color_classification.json'), TRUE);
 
-        if (!empty($_POST['class']))
+        if (!empty($_POST['color']))
         {
             $color['K'.$_POST['class']] = $_POST['color'];
+            foreach ($_POST['color'] as $key => $value) {
+                $color[$key] = $value;
+            }
         }
 
         @file_put_contents(SB.'files/color_classification.json', json_encode($color));
@@ -51,7 +56,7 @@ if (isset($_POST) && count($_POST) > 0)
             }
             else
             {
-                @file_put_contents(SB.'files/other_classification.json', ['K'.$_POST['other_class'] => $_POST['color']]);
+                @file_put_contents(SB.'files/other_classification.json', json_encode(['K'.$_POST['other_class'] => $_POST['other_color']['K'.$_POST['other_class']]]));
             }
         }
     }
@@ -78,12 +83,20 @@ if ($itemPattern_q->num_rows == 1)
     $itemPattern = unserialize($itemPattern_d[0]);
 }
 
-$type = 'left_right_barcode.php';
+$type = 'main_menu.php';
 if (isset($_SESSION['type']))
 {
     $type = $_SESSION['type'].'.php';
 }
 
+$list = [
+            'left_right_barcode' => 'Template Kanan Kiri Label Barcode',
+            'right_barcode' => 'Template Kanan Label Barcode',
+            'left_barcode' => 'Template Kiri Label Barcode',
+            'color_classification' => 'Atur Warna PerKlasifikasi',
+        ];
+// load label warna print setting;
+$lbc = loadSettingJSON('setting.json', SB.'files');
 
 ?>
 <!DOCTYPE html>
@@ -98,11 +111,11 @@ if (isset($_SESSION['type']))
             * {
                 font-family: Arial, Helvetica, sans-serif !important;
                 margin: 0;
-                color: #585858;
             }
             
-            #noprint {
+            #noprint, .noprint {
                 background-color: #dcdcdc;
+                color: #585858;
             }
 
             .block {
@@ -132,7 +145,7 @@ if (isset($_SESSION['type']))
             }
 
             @page {
-                size: landscape !important;
+                size: <?=$lbc['orientasi']?> !important;
                 margin: 10px 0 0 0 !important;
             }
             @media print {
@@ -150,10 +163,17 @@ if (isset($_SESSION['type']))
         <div class="w-full noprint" style="background: #b5b5b5">
             <h1 style="padding: 10px; display: inline-block">Label Barcode Color Wizard :</h1>
             <select id="temp" style="padding: 10px">
-                <option value="left_right_barcode">Template Kanan Kiri Label Barcode</option>
-                <option value="right_barcode">Template Kanan Label Barcode</option>
-                <option value="left_barcode">Template Kiri Label Barcode</option>
-                <option value="color_classification">Atur Warna PerKlasifikasi</option>
+                <option value="">Menu utama</option>
+                <?php
+                foreach ($list as $key => $value) {
+                    $select = '';
+                    if (str_replace('.php', '', $type) == $key)
+                    {
+                        $select = 'selected';
+                    }
+                    echo '<option value="'.$key.'" '.$select.'>'.$value.'</option>';
+                }
+                ?>
             </select>
         </div>
         <div class="loader d-none" ></div>
