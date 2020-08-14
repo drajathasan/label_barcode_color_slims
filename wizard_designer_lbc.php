@@ -83,6 +83,11 @@ if ($itemPattern_q->num_rows == 1)
     $itemPattern = unserialize($itemPattern_d[0]);
 }
 
+if (isset($_GET['reset']))
+{
+    unset($_SESSION['type']);
+}
+
 $type = 'main_menu.php';
 if (isset($_SESSION['type']))
 {

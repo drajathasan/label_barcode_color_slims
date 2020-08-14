@@ -27,7 +27,7 @@ if (isset($_SESSION['INDESIGN']))
 }
 
 $style = [
-    'content' => ['height' => 150],
+    'content' => ['height' => 150, 'font_size' => 14],
     'col' => ['width' => 335],
     'content-hm' => ['width' => 246],
     'barcode-lr' => ['height' => 48, 'width' => 107, 'right' => ['margin' => '34px -15px 30px -15px']]
@@ -91,6 +91,10 @@ include __DIR__.'/right_barcode_style.php';
                 ?>
             </select>
             
+            <!-- Tinggi kotak -->
+            <label class="block">Besar Font</label>
+            <input type="number" name="content[font]" title="Satuan dalam pt." class="w-full b-none block bg-white" onkeyup="changeFontSize()" placeholder="dalam PT" value="<?=$style['content']['font_size']?>"/>
+
             <!-- Tinggi kotak -->
             <label class="block">Tinggi kotak</label>
             <input type="number" name="content[height]" title="Satuan dalam px. (Rekomendasi >= 120 < 200)" class="w-full b-none block bg-white" onkeyup="changeBoxHeight()" placeholder="Secara default akan otomatis (dalam PX)" value="<?=$style['content']['height']?>"/>

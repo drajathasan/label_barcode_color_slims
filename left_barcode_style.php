@@ -29,6 +29,6 @@
 }
 
 .content-main {
-    display: block; width: <?=$style['content-hm']['width']?>px; padding: 1px;font-size: 10pt;font-weight: bold; text-align: center;
+    display: block; width: <?=$style['content-hm']['width']?>px; padding: 1px;font-size: <?=$style['content']['font_size']?>pt;font-weight: bold; text-align: center;
 }
 </style>

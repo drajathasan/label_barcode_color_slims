@@ -23,9 +23,9 @@ $('#temp').change(function(){
 
     if (view == "")
     {
-        view = 'main_menu';
+        self.location.href = './wizard_designer_lbc.php?reset=true';
+        return false;
     }
-
     $('#view').simbioAJAX(baseurl+'admin/modules/bibliography/lbc/'+view+'.php');
 });
 
@@ -99,4 +99,12 @@ function changeTextAlign()
 function changeMargin(position)
 {
     $('.'+position+'-barcode').attr('style', 'margin: '+event.target.value);
+}
+
+/**
+ * Change Font Size
+ */
+function changeFontSize()
+{
+    $('.content-main').attr('style', 'font-size:'+event.target.value+'pt');
 }
