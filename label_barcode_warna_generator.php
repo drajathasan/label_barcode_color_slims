@@ -24,7 +24,7 @@
 define('INDEX_AUTH', '1');
 
 // main system configuration
-require '../../../sysconfig.inc.php';
+require '../../../../sysconfig.inc.php';
 // IP based access limitation
 require LIB.'ip_based_access.inc.php';
 do_checkIP('smc');
